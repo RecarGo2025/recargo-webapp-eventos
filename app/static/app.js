@@ -7,8 +7,10 @@
   function horasCobradas(durMin, tol) {
     return Math.max(1, Math.ceil((durMin - tol) / 60));
   }
-  function calcMonto(durMin, tol, tarifa) {
-    return horasCobradas(durMin, tol) * tarifa;
+  function calcMonto(durMin, tol, tarifa, tope) {
+    var monto = horasCobradas(durMin, tol) * tarifa;
+    if (tope && tope > 0) monto = Math.min(monto, tope);
+    return monto;
   }
   function fmtDur(seg) {
     seg = Math.max(0, Math.floor(seg));
@@ -32,15 +34,21 @@
       var start = parseFloat(root.dataset.start);
       var tarifa = parseFloat(root.dataset.tarifa);
       var tol = parseFloat(root.dataset.tolerancia);
+      var tope = parseFloat(root.dataset.tope) || 0;
       var offset = parseFloat(root.dataset.serverNow) - Date.now() / 1000;
       var timerEl = document.getElementById("timer");
       var montoEl = document.getElementById("monto");
+      var capEl = document.getElementById("tope-aviso");
 
       function tick() {
         var now = Date.now() / 1000 + offset;
         var durSeg = Math.max(0, now - start);
         timerEl.textContent = fmtDur(durSeg);
-        montoEl.textContent = calcMonto(durSeg / 60, tol, tarifa).toFixed(2);
+        montoEl.textContent = calcMonto(durSeg / 60, tol, tarifa, tope).toFixed(2);
+        if (capEl) {
+          var capped = tope > 0 && horasCobradas(durSeg / 60, tol) * tarifa > tope;
+          capEl.classList.toggle("hidden", !capped);
+        }
       }
       tick();
       setInterval(tick, 1000);
@@ -97,11 +105,17 @@
           var start = parseFloat(row.dataset.start);
           var tarifa = parseFloat(row.dataset.tarifa);
           var tol = parseFloat(row.dataset.tolerancia);
+          var tope = parseFloat(row.dataset.tope) || 0;
           var durSeg = Math.max(0, now - start);
           var t = row.querySelector("[data-timer]");
           var mo = row.querySelector("[data-monto]");
           if (t) t.textContent = fmtDur(durSeg);
-          if (mo) mo.textContent = calcMonto(durSeg / 60, tol, tarifa).toFixed(2);
+          if (mo) mo.textContent = calcMonto(durSeg / 60, tol, tarifa, tope).toFixed(2);
+          var nota = row.querySelector("[data-tope-nota]");
+          if (nota) {
+            var capped = tope > 0 && horasCobradas(durSeg / 60, tol) * tarifa > tope;
+            nota.style.display = capped ? "" : "none";
+          }
         });
       }
       tickRows();

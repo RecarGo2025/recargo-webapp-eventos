@@ -49,3 +49,6 @@ TZ = ZoneInfo(TZ_NAME)
 # Defaults de configuración de negocio (solo para el seed inicial).
 DEFAULT_TARIFA_POR_HORA = "10.00"
 DEFAULT_TOLERANCIA_MIN = "4"
+# Tope de cobro (S/). 0 = desactivado (sin límite). Al crear la renta se congela
+# igual que la tarifa; no afecta rentas ya iniciadas.
+DEFAULT_TOPE_MAX = "0.00"

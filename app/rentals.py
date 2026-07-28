@@ -85,6 +85,7 @@ def create_rental(
     tiene una activa (garantizado por el índice único parcial)."""
     tarifa = float(db.get_config(conn, "tarifa_por_hora", "10.00"))
     tolerancia = int(db.get_config(conn, "tolerancia_min", "4"))
+    tope_max = float(db.get_config(conn, "tope_max", "0"))
     start_at = timeutil.now_epoch()
 
     with db.write_lock:
@@ -95,14 +96,15 @@ def create_rental(
             cur = conn.execute(
                 "INSERT INTO rentals "
                 "(dni, station_id, start_at, status, tarifa_hora_snapshot, "
-                " tolerancia_min_snapshot, created_by, eject_ok, eject_msg) "
-                "VALUES (?, ?, ?, 'activa', ?, ?, ?, ?, ?)",
+                " tolerancia_min_snapshot, tope_max_snapshot, created_by, eject_ok, eject_msg) "
+                "VALUES (?, ?, ?, 'activa', ?, ?, ?, ?, ?, ?)",
                 (
                     dni,
                     station_id,
                     start_at,
                     tarifa,
                     tolerancia,
+                    tope_max,
                     created_by,
                     1 if eject.ok else 0,
                     eject.msg[:300],
@@ -128,6 +130,7 @@ def finalize_rental(conn: sqlite3.Connection, rental_id: int) -> sqlite3.Row | N
             duracion_min,
             row["tolerancia_min_snapshot"],
             row["tarifa_hora_snapshot"],
+            row["tope_max_snapshot"],
         )
         conn.execute(
             "UPDATE rentals SET end_at = ?, amount_final = ?, status = 'finalizada' "
@@ -174,18 +177,22 @@ def enrich(row: sqlite3.Row) -> dict:
     dur_seg = max(0.0, ref - start_at)
     dur_min = dur_seg / 60.0
 
+    tope = row["tope_max_snapshot"] or 0.0
     if row["status"] == "cancelada":
         monto = 0.0
         horas = 0
     elif activa:
         horas, monto = pricing.calcular_monto(
-            dur_min, row["tolerancia_min_snapshot"], row["tarifa_hora_snapshot"]
+            dur_min, row["tolerancia_min_snapshot"], row["tarifa_hora_snapshot"], tope
         )
     else:
         monto = row["amount_final"] if row["amount_final"] is not None else 0.0
         horas, _ = pricing.calcular_monto(
-            dur_min, row["tolerancia_min_snapshot"], row["tarifa_hora_snapshot"]
+            dur_min, row["tolerancia_min_snapshot"], row["tarifa_hora_snapshot"], tope
         )
+
+    # Tope alcanzado: el cobro sin recortar ya superaba el techo (solo aplica > 0).
+    tope_alcanzado = bool(tope and tope > 0 and horas * row["tarifa_hora_snapshot"] > tope)
 
     return {
         "id": row["id"],
@@ -204,6 +211,8 @@ def enrich(row: sqlite3.Row) -> dict:
         "monto": round(monto, 2),
         "tarifa": row["tarifa_hora_snapshot"],
         "tolerancia": row["tolerancia_min_snapshot"],
+        "tope_max": tope,
+        "tope_alcanzado": tope_alcanzado,
         "created_by": row["created_by"],
         "eject_ok": bool(row["eject_ok"]),
         "eject_msg": row["eject_msg"],

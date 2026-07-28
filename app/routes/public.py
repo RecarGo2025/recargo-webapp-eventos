@@ -86,6 +86,8 @@ def rental_api(rental_id: int):
             "server_now": timeutil.now_epoch(),
             "tarifa": r["tarifa"],
             "tolerancia": r["tolerancia"],
+            "tope_max": r["tope_max"],
+            "tope_alcanzado": r["tope_alcanzado"],
             "monto": r["monto"],
             "duracion_seg": r["duracion_seg"],
             "duracion_str": r["duracion_str"],

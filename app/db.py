@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS rentals (
     status                  TEXT NOT NULL DEFAULT 'activa',
     tarifa_hora_snapshot    REAL NOT NULL,
     tolerancia_min_snapshot INTEGER NOT NULL,
+    tope_max_snapshot       REAL NOT NULL DEFAULT 0,
     amount_final            REAL,
     created_by              TEXT NOT NULL,
     eject_ok                INTEGER NOT NULL DEFAULT 0,
@@ -66,9 +67,20 @@ def init_db() -> None:
     conn = connect()
     try:
         conn.executescript(SCHEMA)
+        _migrate(conn)
         _seed(conn)
     finally:
         conn.close()
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Migraciones idempotentes para bases ya creadas (CREATE IF NOT EXISTS no
+    agrega columnas nuevas a una tabla existente)."""
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(rentals)").fetchall()}
+    if "tope_max_snapshot" not in cols:
+        conn.execute(
+            "ALTER TABLE rentals ADD COLUMN tope_max_snapshot REAL NOT NULL DEFAULT 0"
+        )
 
 
 def _seed(conn: sqlite3.Connection) -> None:
@@ -76,6 +88,7 @@ def _seed(conn: sqlite3.Connection) -> None:
     defaults = {
         "tarifa_por_hora": config.DEFAULT_TARIFA_POR_HORA,
         "tolerancia_min": config.DEFAULT_TOLERANCIA_MIN,
+        "tope_max": config.DEFAULT_TOPE_MAX,
     }
     for k, v in defaults.items():
         conn.execute(

@@ -21,8 +21,12 @@ Sin build step en runtime, sin framework de frontend.
 ## Regla de precio
 
 `horas_cobradas = max(1, ceil((duración_min − tolerancia_min) / 60))`
-`monto = horas_cobradas × tarifa_hora` (tarifa **congelada** al crear la renta).
-Tolerancia y tarifa se editan en vivo desde *Configuración* (no afecta rentas ya iniciadas).
+`monto = min(horas_cobradas × tarifa_hora, tope_max)` (tarifa y tope **congelados** al crear la renta).
+Tolerancia, tarifa y **tope de cobro** se editan en vivo desde *Configuración* (no afecta rentas ya iniciadas).
+
+El **tope de cobro** es un techo en soles: aunque el usuario acumule más horas, el monto nunca lo
+supera. Se configura en *Configuración → Tope de cobro (S/)*; **`0` = desactivado** (sin límite).
+Las horas cobradas siguen mostrando el tiempo real; solo el monto se recorta.
 
 ---
 
@@ -128,7 +132,7 @@ Los respaldos quedan en `/opt/vibra/backups/` (conserva las últimas 72 copias).
 ### 8. Configuración del día del evento (en el panel admin)
 
 1. Entra a `/admin`, sección **Estaciones**: pega el `device_id` (cabinetid de Bajie) de cada una.
-2. Sección **Configuración de precio**: fija tarifa por hora y tolerancia.
+2. Sección **Configuración de precio**: fija tarifa por hora, tolerancia y (opcional) tope de cobro.
 3. Cada operador selecciona su estación en el header.
 
 ### Reinicio / actualización

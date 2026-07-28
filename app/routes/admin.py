@@ -75,6 +75,7 @@ def panel(request: Request, status: Optional[str] = None, dni: Optional[str] = N
         cfg = {
             "tarifa_por_hora": db.get_config(conn, "tarifa_por_hora", "10.00"),
             "tolerancia_min": db.get_config(conn, "tolerancia_min", "4"),
+            "tope_max": db.get_config(conn, "tope_max", "0.00"),
         }
     finally:
         conn.close()
@@ -129,21 +130,26 @@ def save_config(
     request: Request,
     tarifa_por_hora: str = Form(...),
     tolerancia_min: str = Form(...),
+    tope_max: str = Form("0"),
 ):
     if not auth.is_logged_in(request):
         return RedirectResponse("/admin/login", status_code=303)
     try:
         tarifa = round(float(tarifa_por_hora.replace(",", ".")), 2)
         tol = int(float(tolerancia_min))
-        if tarifa < 0 or tol < 0:
+        # Tope de cobro: vacío o 0 = desactivado (sin límite).
+        raw_tope = (tope_max or "").strip().replace(",", ".")
+        tope = round(float(raw_tope), 2) if raw_tope else 0.0
+        if tarifa < 0 or tol < 0 or tope < 0:
             raise ValueError
     except ValueError:
-        flash(request, "Tarifa o tolerancia inválidas.", "error")
+        flash(request, "Tarifa, tolerancia o tope inválidos.", "error")
         return RedirectResponse("/admin", status_code=303)
     conn = db.connect()
     try:
         db.set_config(conn, "tarifa_por_hora", f"{tarifa:.2f}")
         db.set_config(conn, "tolerancia_min", str(tol))
+        db.set_config(conn, "tope_max", f"{tope:.2f}")
     finally:
         conn.close()
     flash(request, "Configuración guardada.", "ok")
@@ -319,14 +325,17 @@ def export_csv(request: Request):
     w = csv.writer(buf)
     w.writerow(
         ["id", "documento", "estacion", "estado", "inicio", "fin", "duracion",
-         "horas_cobradas", "tarifa_hora", "tolerancia_min", "monto", "creado_por",
-         "expulsion_ok", "expulsion_detalle"]
+         "horas_cobradas", "tarifa_hora", "tolerancia_min", "tope_max", "tope_alcanzado",
+         "monto", "creado_por", "expulsion_ok", "expulsion_detalle"]
     )
     for r in enriched:
         w.writerow(
             [r["id"], r["dni"], r["station_nombre"], r["status"], r["start_at_str"],
              r["end_at_str"], r["duracion_str"], r["horas_cobradas"], f'{r["tarifa"]:.2f}',
-             r["tolerancia"], f'{r["monto"]:.2f}', r["created_by"],
+             r["tolerancia"],
+             f'{r["tope_max"]:.2f}' if r["tope_max"] else "",
+             "SI" if r["tope_alcanzado"] else "",
+             f'{r["monto"]:.2f}', r["created_by"],
              "SI" if r["eject_ok"] else "NO", r["eject_msg"]]
         )
     return Response(

@@ -77,7 +77,7 @@
       {% endif %}
       {% for r in rentals %}
       <article class="sticker p-4"
-               {% if r.status == 'activa' %}data-live="1" data-start="{{ r.start_at }}" data-tarifa="{{ r.tarifa }}" data-tolerancia="{{ r.tolerancia }}"{% endif %}>
+               {% if r.status == 'activa' %}data-live="1" data-start="{{ r.start_at }}" data-tarifa="{{ r.tarifa }}" data-tolerancia="{{ r.tolerancia }}" data-tope="{{ r.tope_max }}"{% endif %}>
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
@@ -94,6 +94,10 @@
           <div class="shrink-0 text-right">
             <p class="font-mono text-base font-extrabold tabular-nums text-ink" data-timer>{{ r.duracion_str }}</p>
             <p class="font-display text-xl text-coral">S/ <span data-monto>{{ '%.2f'|format(r.monto) }}</span></p>
+            {% if r.tope_max %}
+            <p class="mt-0.5 text-[11px] font-bold text-ink-mute" data-tope-nota
+               {% if not r.tope_alcanzado %}style="display:none"{% endif %}>tope S/ {{ '%.2f'|format(r.tope_max) }}</p>
+            {% endif %}
           </div>
         </div>
         <div class="mt-3 flex items-center justify-between gap-2">
@@ -169,9 +173,15 @@
           <input name="tolerancia_min" value="{{ cfg.tolerancia_min }}" inputmode="numeric"
                  class="w-full rounded-xl border-2 border-ink px-3 py-2 font-bold outline-none">
         </label>
+        <label class="col-span-2 block">
+          <span class="mb-1 block text-sm font-extrabold text-ink-soft">Tope de cobro (S/)</span>
+          <input name="tope_max" value="{{ cfg.tope_max }}" inputmode="decimal" placeholder="0 = sin tope"
+                 class="w-full rounded-xl border-2 border-ink px-3 py-2 font-bold outline-none">
+          <span class="mt-1 block text-xs text-ink-mute">Techo del cobro por renta aunque se usen más horas. <b>0 = desactivado</b> (sin límite).</span>
+        </label>
         <div class="col-span-2 flex flex-col gap-2">
           <button class="btn btn-coral w-full">Guardar precio</button>
-          <span class="text-xs text-ink-mute">No afecta rentas ya iniciadas (usan su tarifa congelada).</span>
+          <span class="text-xs text-ink-mute">No afecta rentas ya iniciadas (usan su tarifa y tope congelados).</span>
         </div>
       </form>
 

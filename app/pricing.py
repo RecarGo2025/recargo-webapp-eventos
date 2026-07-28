@@ -15,8 +15,19 @@ def horas_cobradas(duracion_min: float, tolerancia_min: float) -> int:
 
 
 def calcular_monto(
-    duracion_min: float, tolerancia_min: float, tarifa_hora: float
+    duracion_min: float,
+    tolerancia_min: float,
+    tarifa_hora: float,
+    tope_max: float = 0.0,
 ) -> tuple[int, float]:
-    """Devuelve (horas_cobradas, monto)."""
+    """Devuelve (horas_cobradas, monto).
+
+    `tope_max` es el techo de cobro en soles: si > 0, el monto nunca supera ese
+    valor aunque se acumulen más horas. `tope_max <= 0` = sin tope (desactivado).
+    Las horas cobradas se devuelven sin recortar (siguen reflejando el tiempo real).
+    """
     horas = horas_cobradas(duracion_min, tolerancia_min)
-    return horas, round(horas * tarifa_hora, 2)
+    monto = horas * tarifa_hora
+    if tope_max and tope_max > 0:
+        monto = min(monto, tope_max)
+    return horas, round(monto, 2)
