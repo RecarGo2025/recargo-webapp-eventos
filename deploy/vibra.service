@@ -9,7 +9,8 @@ Group=www-data
 WorkingDirectory=/opt/vibra
 EnvironmentFile=/opt/vibra/.env
 # 1 worker: SQLite + WAL rinde de sobra para 3 operadores y ~500 usuarios.
-ExecStart=/opt/vibra/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1
+# Puerto 8001: el 8000 lo ocupa el panel admin de RecarGo en este mismo VPS.
+ExecStart=/opt/vibra/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8001 --workers 1
 Restart=always
 RestartSec=2
 # Endurecimiento básico
