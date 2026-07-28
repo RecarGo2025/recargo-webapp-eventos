@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "icons.html" import icon %}
+{% block title %}Ingreso operadores — RecarGo{% endblock %}
+{% block body %}
+<main class="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-10">
+
+  <!-- ── Zona de marca ─────────────────────────────────────── -->
+  <h1 class="title-sticker text-center font-display text-2xl sm:text-3xl">Estaciones de carga</h1>
+  <p class="mt-2 text-center text-xs font-extrabold uppercase tracking-[0.15em] text-ink-mute">Panel de operadores</p>
+
+  <div class="mt-5 flex flex-col items-center gap-2">
+    <img src="/static/img/vibra.png?v={{ asset_v }}" alt="Vibra Perú" class="w-[40%] max-w-[148px]">
+    <span class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-paper font-display text-xs text-ink shadow-sticker-sm">×</span>
+    <img src="/static/img/recargo.svg?v={{ asset_v }}" alt="RecarGo" class="w-[34%] max-w-[120px]">
+  </div>
+
+  <!-- ── Zona de acción (tarjeta) ──────────────────────────── -->
+  <div class="sticker mt-8 p-5">
+    {% if error %}
+    <div class="toast toast-err mb-4">{{ icon('warning') }}<span>{{ error }}</span></div>
+    {% endif %}
+    <form method="post" action="/admin/login" class="space-y-3">
+      <input name="usuario" autocomplete="username" autofocus placeholder="Usuario" class="field-input">
+      <input name="password" type="password" autocomplete="current-password" placeholder="Contraseña" class="field-input">
+      <button type="submit" class="btn btn-dark btn-lg w-full">Ingresar {{ icon('arrow') }}</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

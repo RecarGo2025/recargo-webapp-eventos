@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% from "icons.html" import icon %}
+{% block title %}Panel — RecarGo x Vibra{% endblock %}
+{% block body %}
+<div class="min-h-screen pb-28" data-server-now="{{ server_now }}">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-20 border-b-[2.5px] border-ink bg-teal text-white">
+    <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
+      <form method="post" action="/admin/station" class="flex min-w-0 items-center gap-2">
+        <span class="text-xs font-extrabold uppercase tracking-wide text-white/70">Estación</span>
+        <select name="station_id" onchange="this.form.submit()"
+                class="rounded-xl border-2 border-ink bg-paper px-2 py-1.5 text-sm font-extrabold text-ink outline-none">
+          {% for s in stations %}
+          <option value="{{ s.id }}" {% if selected and s.id == selected.id %}selected{% endif %}>
+            {{ s.nombre }}{% if not s.device_id %} (sin ID){% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </form>
+      <div class="flex items-center gap-3 text-sm">
+        <span class="hidden font-semibold text-white/80 sm:inline">{{ user }}</span>
+        <button type="button" onclick="VibraAdmin.open('modal-config')" title="Configuración"
+                class="inline-flex items-center text-white/80 hover:text-white">{{ icon('gear') }}</button>
+        <form method="post" action="/admin/logout"><button title="Salir" class="inline-flex items-center text-white/80 hover:text-white">{{ icon('logout') }}</button></form>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4 py-5">
+
+    <!-- Flashes + zona de avisos JS -->
+    <div id="toast-zone" class="space-y-2">
+      {% for f in flashes %}
+      <div class="toast {% if f.kind == 'ok' %}toast-ok{% elif f.kind == 'error' %}toast-err{% else %}toast-warn{% endif %}">{{ f.text }}</div>
+      {% endfor %}
+    </div>
+
+    {% if not selected or not selected.device_id %}
+    <div class="toast toast-warn mt-3">{{ icon('warning') }}<span>La estación seleccionada no tiene <b>device_id</b> de Bajie. Puedes operar igual (expulsión manual), pero configúralo abajo en “Estaciones”.</span></div>
+    {% endif %}
+
+    <!-- Acciones principales -->
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <button onclick="VibraAdmin.openCreate()" class="btn btn-coral btn-lg flex-col !py-6 text-lg">
+        {{ icon('plus') }} Crear alquiler
+      </button>
+      <button onclick="VibraAdmin.openFinalize()" class="btn btn-dark btn-lg flex-col !py-6 text-lg">
+        {{ icon('check') }} Finalizar renta
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <form method="get" action="/admin" class="mt-5 flex flex-wrap items-center gap-2">
+      <div class="relative min-w-0 flex-1">
+        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute">{{ icon('search') }}</span>
+        <input name="dni" value="{{ filtro_dni }}" placeholder="Buscar documento"
+               class="w-full rounded-xl border-2 border-ink bg-paper py-2 pl-9 pr-3 text-sm font-bold outline-none">
+      </div>
+      <select name="status" onchange="this.form.submit()"
+              class="rounded-xl border-2 border-ink bg-paper px-2 py-2 text-sm font-bold outline-none">
+        <option value="" {% if not filtro_status %}selected{% endif %}>Todas</option>
+        <option value="activa" {% if filtro_status == 'activa' %}selected{% endif %}>Activas</option>
+        <option value="finalizada" {% if filtro_status == 'finalizada' %}selected{% endif %}>Finalizadas</option>
+        <option value="cancelada" {% if filtro_status == 'cancelada' %}selected{% endif %}>Canceladas</option>
+      </select>
+      <button class="inline-flex items-center gap-1 rounded-xl border-2 border-ink bg-paper px-3 py-2 text-sm font-extrabold text-ink">{{ icon('filter') }}</button>
+    </form>
+
+    <!-- Lista de rentas -->
+    <section class="mt-4 space-y-2.5">
+      {% if not rentals %}
+      <div class="card-soft flex flex-col items-center px-4 py-10 text-center">
+        <img src="/static/img/bateria.svg" alt="" class="mb-3 h-12 opacity-70">
+        <p class="font-semibold text-ink-mute">No hay alquileres todavía.</p>
+      </div>
+      {% endif %}
+      {% for r in rentals %}
+      <article class="sticker p-4"
+               {% if r.status == 'activa' %}data-live="1" data-start="{{ r.start_at }}" data-tarifa="{{ r.tarifa }}" data-tolerancia="{{ r.tolerancia }}"{% endif %}>
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="truncate font-display text-xl text-ink">{{ r.dni }}</span>
+              {% if r.status == 'activa' %}<span class="badge badge-act"><span class="dot"></span>Activa</span>
+              {% elif r.status == 'finalizada' %}<span class="badge badge-fin"><span class="dot"></span>Finalizada</span>
+              {% else %}<span class="badge badge-can"><span class="dot"></span>Cancelada</span>{% endif %}
+            </div>
+            <p class="mt-1 text-sm font-medium text-ink-soft">{{ r.station_nombre }} · inicio {{ r.start_time_str }}</p>
+            {% if r.status == 'activa' and not r.eject_ok %}
+            <p class="mt-1.5 inline-flex items-center gap-1 rounded-full border-2 border-ink bg-warn-bg px-2.5 py-0.5 text-xs font-extrabold text-[#946200]">{{ icon('warning') }} expulsión manual</p>
+            {% endif %}
+          </div>
+          <div class="shrink-0 text-right">
+            <p class="font-mono text-base font-extrabold tabular-nums text-ink" data-timer>{{ r.duracion_str }}</p>
+            <p class="font-display text-xl text-coral">S/ <span data-monto>{{ '%.2f'|format(r.monto) }}</span></p>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center justify-between gap-2">
+          <button onclick="VibraAdmin.del({{ r.id }}, '{{ r.dni }}')" title="Eliminar renta (cargada por error)"
+                  class="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-extrabold text-danger">{{ icon('trash') }}<span class="hidden sm:inline">Eliminar</span></button>
+          {% if r.status == 'activa' %}
+          <div class="flex gap-2">
+            <button onclick="VibraAdmin.cancel({{ r.id }}, '{{ r.dni }}')"
+                    class="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-danger-bg px-3 py-1.5 text-sm font-extrabold text-danger">{{ icon('x') }} Cancelar</button>
+            <button onclick="VibraAdmin.finalizeId({{ r.id }}, '{{ r.dni }}')"
+                    class="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-ink px-3 py-1.5 text-sm font-extrabold text-white">{{ icon('check') }} Finalizar</button>
+          </div>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+
+  </main>
+
+  <!-- Botón flotante: expulsión rápida -->
+  <button onclick="VibraAdmin.quickEject()" class="btn btn-gold fixed bottom-5 right-5 z-30 !rounded-full !px-5 !py-4">
+    {{ icon('eject') }} Expulsar
+  </button>
+
+  <!-- Modal: Crear alquiler -->
+  <div id="modal-create" class="fixed inset-0 z-40 hidden items-end justify-center bg-black/40 p-0 sm:items-center sm:p-6">
+    <div class="w-full max-w-md rounded-t-xl2 border-[2.5px] border-ink bg-paper p-6 shadow-pop sm:rounded-xl2">
+      <h2 class="font-display text-xl text-ink">Crear alquiler</h2>
+      <p class="mt-1 text-sm font-medium text-ink-soft">Estación: <b>{{ selected.nombre if selected else '—' }}</b>. Se expulsará la batería con más carga.</p>
+      <input id="create-dni" inputmode="text" autocomplete="off" placeholder="Documento del usuario" class="field-input mt-4">
+      <div id="create-msg" class="mt-3 hidden"></div>
+      <div class="mt-5 flex gap-3">
+        <button onclick="VibraAdmin.close('modal-create')" class="btn btn-ghost flex-1">Cancelar</button>
+        <button id="create-confirm" onclick="VibraAdmin.submitCreate()" class="btn btn-coral flex-1">Expulsar y crear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Finalizar renta -->
+  <div id="modal-finalize" class="fixed inset-0 z-40 hidden items-end justify-center bg-black/40 p-0 sm:items-center sm:p-6">
+    <div class="w-full max-w-md rounded-t-xl2 border-[2.5px] border-ink bg-paper p-6 shadow-pop sm:rounded-xl2">
+      <h2 class="font-display text-xl text-ink">Finalizar renta</h2>
+      <input id="finalize-dni" inputmode="text" autocomplete="off" placeholder="Documento del usuario" class="field-input mt-4">
+      <div id="finalize-summary" class="mt-4 hidden"></div>
+      <div id="finalize-msg" class="mt-3 hidden"></div>
+      <div class="mt-5 flex gap-3">
+        <button onclick="VibraAdmin.close('modal-finalize')" class="btn btn-ghost flex-1">Cerrar</button>
+        <button id="finalize-search" onclick="VibraAdmin.lookupFinalize()" class="btn btn-dark flex-1">Buscar</button>
+        <button id="finalize-confirm" onclick="VibraAdmin.submitFinalize()" class="btn btn-coral hidden flex-1">Confirmar cobro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Configuración (rueda) -->
+  <div id="modal-config" class="fixed inset-0 z-40 hidden items-end justify-center bg-black/40 p-0 sm:items-center sm:p-6">
+    <div class="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-xl2 border-[2.5px] border-ink bg-paper p-6 shadow-pop sm:rounded-xl2">
+      <div class="flex items-center justify-between">
+        <h2 class="flex items-center gap-2 font-display text-xl text-ink">{{ icon('gear') }} Configuración</h2>
+        <button onclick="VibraAdmin.close('modal-config')" class="inline-flex items-center text-ink-mute hover:text-ink">{{ icon('x') }}</button>
+      </div>
+
+      <!-- Precio -->
+      <h3 class="mt-5 text-sm font-extrabold uppercase tracking-wide text-ink-mute">Precio</h3>
+      <form method="post" action="/admin/config" class="mt-3 grid grid-cols-2 gap-3">
+        <label class="block">
+          <span class="mb-1 block text-sm font-extrabold text-ink-soft">Tarifa por hora (S/)</span>
+          <input name="tarifa_por_hora" value="{{ cfg.tarifa_por_hora }}" inputmode="decimal"
+                 class="w-full rounded-xl border-2 border-ink px-3 py-2 font-bold outline-none">
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-sm font-extrabold text-ink-soft">Tolerancia (min)</span>
+          <input name="tolerancia_min" value="{{ cfg.tolerancia_min }}" inputmode="numeric"
+                 class="w-full rounded-xl border-2 border-ink px-3 py-2 font-bold outline-none">
+        </label>
+        <div class="col-span-2 flex flex-col gap-2">
+          <button class="btn btn-coral w-full">Guardar precio</button>
+          <span class="text-xs text-ink-mute">No afecta rentas ya iniciadas (usan su tarifa congelada).</span>
+        </div>
+      </form>
+
+      <!-- Estaciones -->
+      <h3 class="mt-6 text-sm font-extrabold uppercase tracking-wide text-ink-mute">Estaciones (device_id de Bajie)</h3>
+      <div class="mt-3 space-y-4">
+        {% for s in stations %}
+        <form method="post" action="/admin/station/edit" class="rounded-2xl border-2 border-line p-3">
+          <input type="hidden" name="station_id" value="{{ s.id }}">
+          <label class="block">
+            <span class="mb-1 block text-xs font-extrabold text-ink-mute">Nombre</span>
+            <input name="nombre" value="{{ s.nombre }}" class="w-full rounded-xl border-2 border-ink px-3 py-2 text-sm font-bold outline-none">
+          </label>
+          <label class="mt-2 block">
+            <span class="mb-1 block text-xs font-extrabold text-ink-mute">device_id (cabinetid)</span>
+            <input name="device_id" value="{{ s.device_id }}" placeholder="p.ej. DTA18271"
+                   class="w-full rounded-xl border-2 border-ink px-3 py-2 font-mono text-sm font-bold outline-none">
+          </label>
+          <button class="btn btn-dark mt-3 w-full !py-2 !text-sm">Guardar estación</button>
+        </form>
+        {% endfor %}
+      </div>
+
+      <!-- Datos -->
+      <h3 class="mt-6 text-sm font-extrabold uppercase tracking-wide text-ink-mute">Datos</h3>
+      <a href="/admin/export.csv" class="btn btn-ghost mt-3 w-full">{{ icon('download') }} Descargar CSV</a>
+
+      <button onclick="VibraAdmin.close('modal-config')" class="btn btn-dark mt-6 w-full">Cerrar</button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/app.js"></script>
+<script>VibraAdmin.init();</script>
+{% endblock %}

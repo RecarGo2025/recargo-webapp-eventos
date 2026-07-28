@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Fuentes autohospedadas (offline-safe) ───────────────────────
+   Inter = cuerpo/UI. Archivo = placeholder de Monument Extended.
+   Cuando llegue Monument, agrega su @font-face con family
+   "Monument Extended" y ganará por orden en font-display.        */
+@font-face { font-family:"Inter"; font-style:normal; font-weight:400; font-display:swap; src:url("/static/fonts/inter-400.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:600; font-display:swap; src:url("/static/fonts/inter-600.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:700; font-display:swap; src:url("/static/fonts/inter-700.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:800; font-display:swap; src:url("/static/fonts/inter-800.woff2") format("woff2"); }
+@font-face { font-family:"Inter"; font-style:normal; font-weight:900; font-display:swap; src:url("/static/fonts/inter-900.woff2") format("woff2"); }
+@font-face { font-family:"Archivo"; font-style:normal; font-weight:800; font-display:swap; src:url("/static/fonts/archivo-800.woff2") format("woff2"); }
+@font-face { font-family:"Archivo"; font-style:normal; font-weight:900; font-display:swap; src:url("/static/fonts/archivo-900.woff2") format("woff2"); }
+
+@layer base {
+  body {
+    @apply bg-cream text-ink font-ui antialiased;
+    background-image: repeating-linear-gradient(135deg, rgba(46,157,166,.05) 0 22px, transparent 22px 44px);
+  }
+}
+
+@layer components {
+  /* Superficie sticker: contorno grueso + sombra sólida offset */
+  .sticker { @apply border-[2.5px] border-ink rounded-card bg-paper shadow-sticker; }
+  .card-soft { @apply rounded-card bg-paper ring-1 ring-line shadow-card; }
+
+  /* Título de marca estilo póster: relleno claro, contorno de tinta y
+     sombra sólida offset (como los titulares "SORTEAMOS" de Vibra).       */
+  .title-sticker {
+    color: #FFF;
+    -webkit-text-stroke: 2px #241611;
+    paint-order: stroke fill;
+    text-shadow: 3px 3px 0 #241611;
+    letter-spacing: .01em;
+  }
+  .title-sticker-gold  { color: #F6B01D; }
+  .title-sticker-coral { color: #EF5340; }
+
+  /* Botones */
+  .btn { @apply inline-flex items-center justify-center gap-2 font-ui font-extrabold text-base
+          border-[2.5px] border-ink rounded-full px-5 py-3.5 shadow-sticker
+          transition-transform duration-75 select-none cursor-pointer; }
+  .btn:active { @apply translate-x-[3px] translate-y-[3px] shadow-[1px_1px_0_#241611]; }
+  .btn-lg { @apply text-lg px-6 py-4; }
+  .btn-coral { @apply bg-coral text-white; }
+  .btn-dark  { @apply bg-ink text-white; }
+  .btn-gold  { @apply bg-gold text-ink; }
+  .btn-sky   { @apply bg-sky text-white; }
+  .btn-ghost { @apply bg-paper text-ink; }
+  .btn[disabled] { @apply opacity-40 shadow-none pointer-events-none; }
+
+  /* Campos */
+  .field-input { @apply w-full text-lg font-bold px-4 py-4 border-[2.5px] border-ink rounded-2xl
+                  bg-paper outline-none shadow-sticker-sm; }
+  .field-input:focus { @apply shadow-[3px_3px_0_#241611,0_0_0_4px_rgba(246,176,29,.35)]; }
+
+  /* Badges de estado */
+  .badge { @apply inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full border-2 border-ink; }
+  .badge .dot { @apply h-2 w-2 rounded-full; }
+  .badge-act { @apply bg-success-bg text-[#1C7A48]; } .badge-act .dot { @apply bg-success; }
+  .badge-fin { @apply bg-[#EEE6DA] text-ink-soft; } .badge-fin .dot { @apply bg-ink-mute; }
+  .badge-can { @apply bg-danger-bg text-danger; } .badge-can .dot { @apply bg-danger; }
+
+  /* Toast */
+  .toast { @apply flex items-center gap-2.5 rounded-2xl border-[2.5px] border-ink px-4 py-3
+           font-bold text-sm shadow-sticker-sm bg-paper; }
+  .toast-ok { @apply bg-success-bg; } .toast-warn { @apply bg-warn-bg; } .toast-err { @apply bg-danger-bg; }
+
+  /* Iconos inline (Phosphor-style): trazo consistente */
+  .ico { @apply inline-block align-[-0.15em]; width:1.15em; height:1.15em;
+         fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+}

@@ -1,0 +1,13 @@
+.env
+*.db
+*.db-wal
+*.db-shm
+backups/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+scratch/
+bin/tailwindcss
+scratch_shots/

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "icons.html" import icon %}
+{% block title %}Tu alquiler — RecarGo{% endblock %}
+{% block body %}
+<main class="mx-auto flex min-h-screen max-w-sm flex-col px-6 py-8"
+      id="rental-root"
+      data-id="{{ r.id }}"
+      data-status="{{ r.status }}"
+      data-start="{{ r.start_at }}"
+      data-server-now="{{ server_now }}"
+      data-tarifa="{{ r.tarifa }}"
+      data-tolerancia="{{ r.tolerancia }}">
+
+  <header class="mb-6 flex items-center justify-between">
+    <div class="flex items-center gap-2 sm:gap-2.5">
+      <img src="/static/img/recargo.svg?v={{ asset_v }}" alt="RecarGo" class="h-5 w-auto shrink-0 sm:h-6">
+      <span class="font-display text-sm text-ink-mute sm:text-base">×</span>
+      <img src="/static/img/vibra.png?v={{ asset_v }}" alt="Vibra Perú" class="h-8 w-auto shrink-0 sm:h-9">
+    </div>
+    <a href="/" class="inline-flex items-center gap-1 text-sm font-bold text-ink-mute hover:text-ink">{{ icon('x') }} Salir</a>
+  </header>
+
+  <p class="text-sm font-bold uppercase tracking-wide text-ink-mute">Documento</p>
+  <h1 class="mb-6 font-display text-3xl tracking-wide text-ink">{{ r.dni }}</h1>
+
+  {% if r.status == 'activa' %}
+  <section class="sticker p-6 text-center">
+    <span class="badge badge-act"><span class="dot animate-pulse"></span> Alquiler activo</span>
+    <p class="mt-6 text-sm font-extrabold uppercase tracking-wide text-ink-mute">Tiempo transcurrido</p>
+    <div id="timer" class="my-1 font-display text-5xl tabular-nums text-ink">00:00:00</div>
+    <p class="mt-5 text-sm font-extrabold uppercase tracking-wide text-ink-mute">Costo acumulado</p>
+    <div class="mt-1 font-display text-4xl text-success">S/ <span id="monto">0.00</span></div>
+    <p class="mt-2 text-xs font-medium text-ink-mute">
+      Tarifa S/ {{ '%.2f'|format(r.tarifa) }} por hora
+    </p>
+  </section>
+  <p class="mt-6 text-center text-sm font-medium text-ink-soft">
+    Muestra esta pantalla al terminar tu alquiler.
+  </p>
+
+  {% elif r.status == 'finalizada' %}
+  <section class="rounded-xl2 border-[2.5px] border-ink bg-ink p-6 text-center text-white shadow-pop">
+    <span class="badge badge-fin border-white/20 bg-white/10 text-white/90">Alquiler finalizado</span>
+    <p class="mt-6 text-sm font-extrabold uppercase tracking-wide text-white/50">Monto a pagar</p>
+    <div class="my-1 font-display text-6xl text-gold">S/ {{ '%.2f'|format(r.monto) }}</div>
+    <div class="mt-6 grid grid-cols-2 gap-3 text-left">
+      <div class="rounded-2xl bg-white/10 p-3">
+        <p class="text-xs uppercase text-white/50">Tiempo total</p>
+        <p class="text-lg font-extrabold">{{ r.duracion_str }}</p>
+      </div>
+      <div class="rounded-2xl bg-white/10 p-3">
+        <p class="text-xs uppercase text-white/50">Hora de fin</p>
+        <p class="text-lg font-extrabold">{{ r.end_at_str }}</p>
+      </div>
+    </div>
+  </section>
+  <p class="mt-6 text-center text-sm font-bold text-ink-soft">
+    Muestra esta pantalla al staff del POS para realizar el pago.
+  </p>
+
+  {% else %}
+  <section class="sticker p-6 text-center">
+    <span class="badge badge-can"><span class="dot"></span> Alquiler cancelado</span>
+    <p class="mt-4 font-medium text-ink-soft">Este alquiler fue cancelado. Si crees que es un error, avisa a un operador de RecarGo.</p>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/app.js"></script>
+<script>VibraRental.init();</script>
+{% endblock %}

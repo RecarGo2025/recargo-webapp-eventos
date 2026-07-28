@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design System · RecarGo × Vibra Perú</title>
+<!-- Fuentes: Inter (cuerpo/UI real) + Archivo expandido como PLACEHOLDER de Monument Extended -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ── Marca ─────────────────────────────── */
+  --coral:#EF5340;      --coral-700:#D63A28;
+  --yellow:#F6B01D;     --yellow-700:#D68F00;
+  --teal:#2E9DA6;       --teal-700:#207880;
+  --blue:#26A9E0;       --blue-700:#1785B8;
+  --purple:#8C4BA0;     --purple-700:#6E3880;
+  /* ── Tinta / neutros ───────────────────── */
+  --ink:#241611;        --ink-soft:#4E3B33;  --ink-mute:#8A756B;
+  --cream:#FBF5EA;      --paper:#FFFFFF;     --line:#EadFce;
+  /* ── Semánticos (estados de la app) ────── */
+  --success:#2FA968;    --success-bg:#E4F6EC;
+  --warn:#F6B01D;       --warn-bg:#FDF1D6;
+  --danger:#D63A28;     --danger-bg:#FBE5E1;
+  --info:#26A9E0;       --info-bg:#E1F3FB;
+  /* ── Radios ────────────────────────────── */
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-xl:30px; --r-pill:999px;
+  /* ── Sombras ───────────────────────────── */
+  --sh-sticker:4px 4px 0 var(--ink);
+  --sh-sticker-sm:3px 3px 0 var(--ink);
+  --sh-card:0 6px 18px rgba(36,22,17,.10);
+  --sh-pop:0 10px 26px rgba(36,22,17,.20);
+  --glow-yellow:0 0 0 4px rgba(246,176,29,.35);
+  /* ── Tipografía ────────────────────────── */
+  --font-display:'Archivo', system-ui, sans-serif; /* → Monument Extended UltraBold */
+  --font-ui:'Inter', system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--font-ui); color:var(--ink); background:var(--cream);
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+  background-image:repeating-linear-gradient(135deg,rgba(46,157,166,.05) 0 22px,transparent 22px 44px);
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.display{font-family:var(--font-display);font-weight:900;letter-spacing:.01em;line-height:.98}
+.mono-num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* Estilo sticker: contorno grueso + sombra sólida offset */
+.sticker{border:2.5px solid var(--ink);box-shadow:var(--sh-sticker);border-radius:var(--r-lg);background:var(--paper)}
+
+/* ── Header ─────────────────────────────── */
+.hero{background:var(--teal);color:#fff;border-bottom:3px solid var(--ink);
+  background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 26px,transparent 26px 52px)}
+.hero .wrap{padding:44px 20px 40px}
+.kicker{display:inline-block;background:var(--yellow);color:var(--ink);font-weight:800;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:var(--r-pill);
+  border:2px solid var(--ink);box-shadow:var(--sh-sticker-sm)}
+.hero h1{font-size:clamp(38px,7vw,66px);margin:16px 0 8px;
+  text-shadow:0 3px 0 var(--ink),0 4px 0 var(--ink)}
+.hero h1 .out{color:var(--coral)}
+.hero p{max-width:56ch;color:rgba(255,255,255,.92);font-weight:500}
+
+/* ── Secciones ──────────────────────────── */
+section{padding:44px 0;border-bottom:2px dashed var(--line)}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sec-h h2{font-family:var(--font-display);font-weight:900;font-size:26px;text-transform:uppercase}
+.sec-h .n{font-family:var(--font-display);font-weight:900;color:var(--coral);font-size:26px}
+.sec-sub{color:var(--ink-soft);margin-bottom:26px;max-width:70ch}
+
+.grid{display:grid;gap:16px}
+.g-2{grid-template-columns:repeat(2,1fr)} .g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)} .g-5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:720px){.g-3,.g-4,.g-5{grid-template-columns:repeat(2,1fr)}.g-2{grid-template-columns:1fr}}
+
+/* ── Principios ─────────────────────────── */
+.princ{padding:20px;border-radius:var(--r-md);background:var(--paper);border:2px solid var(--ink);box-shadow:var(--sh-sticker-sm)}
+.princ .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:12px;border:2px solid var(--ink)}
+.princ h3{font-size:16px;font-weight:800;margin-bottom:4px}
+.princ p{font-size:14px;color:var(--ink-soft)}
+
+/* ── Swatches ───────────────────────────── */
+.sw{border-radius:var(--r-md);overflow:hidden;border:2px solid var(--ink);box-shadow:var(--sh-sticker-sm)}
+.sw .chip{height:92px;display:flex;align-items:flex-end;padding:10px;color:#fff;font-weight:800;font-size:13px}
+.sw .meta{background:var(--paper);padding:10px 12px}
+.sw .meta b{display:block;font-size:14px} .sw .meta code{font-size:12px;color:var(--ink-mute)}
+.sw .meta small{display:block;font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+/* ── Tipografía specimen ────────────────── */
+.spec{background:var(--paper);border:2px solid var(--ink);border-radius:var(--r-md);padding:20px;box-shadow:var(--sh-sticker-sm)}
+.spec .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:8px}
+.type-row{display:flex;align-items:baseline;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.type-row:first-of-type{border-top:0}
+.type-row .tag{font-size:12px;color:var(--ink-mute);min-width:120px;font-weight:600}
+
+/* ── Íconos ─────────────────────────────── */
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.icons figure{background:var(--paper);border:2px solid var(--ink);border-radius:var(--r-md);
+  padding:16px 8px;text-align:center;box-shadow:var(--sh-sticker-sm)}
+.icons svg{width:30px;height:30px;stroke:var(--ink);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.icons figcaption{font-size:11px;color:var(--ink-soft);margin-top:8px;font-weight:600}
+
+/* ── Radios / sombras demo ──────────────── */
+.demo-box{background:var(--paper);border:2px solid var(--ink);height:88px;display:grid;place-items:center;font-weight:700;font-size:12px;color:var(--ink-soft)}
+
+/* ── Botones ────────────────────────────── */
+.btn{font-family:var(--font-ui);font-weight:800;font-size:16px;border:2.5px solid var(--ink);
+  border-radius:var(--r-pill);padding:14px 22px;cursor:pointer;box-shadow:var(--sh-sticker);
+  transition:transform .05s,box-shadow .05s;display:inline-flex;align-items:center;gap:8px}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn-coral{background:var(--coral);color:#fff} .btn-dark{background:var(--ink);color:#fff}
+.btn-yellow{background:var(--yellow);color:var(--ink)} .btn-blue{background:var(--blue);color:#fff}
+.btn-ghost{background:var(--paper);color:var(--ink)}
+.btn-lg{font-size:18px;padding:18px 26px}
+
+/* ── Componentes app ────────────────────── */
+.phone{max-width:390px;margin:0 auto}
+.field label{font-size:13px;font-weight:700;display:block;margin-bottom:6px}
+.field input{width:100%;font-size:18px;font-weight:700;padding:15px 16px;border:2.5px solid var(--ink);
+  border-radius:var(--r-md);background:var(--paper);outline:none;box-shadow:var(--sh-sticker-sm)}
+.field input:focus{box-shadow:var(--sh-sticker-sm),var(--glow-yellow)}
+
+.badge{font-size:12px;font-weight:800;padding:4px 12px;border-radius:var(--r-pill);border:2px solid var(--ink);display:inline-flex;align-items:center;gap:6px}
+.badge .dot{width:8px;height:8px;border-radius:50%}
+.b-act{background:var(--success-bg);color:#1c7a48} .b-act .dot{background:var(--success)}
+.b-fin{background:#eee6da;color:var(--ink-soft)} .b-fin .dot{background:var(--ink-mute)}
+.b-can{background:var(--danger-bg);color:var(--danger)} .b-can .dot{background:var(--danger)}
+
+.rcard{background:var(--paper);border:2.5px solid var(--ink);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh-sticker)}
+.rcard .dni{font-family:var(--font-display);font-weight:900;font-size:22px}
+.rcard .meta{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.rcard .flag{margin-top:8px;display:inline-flex;gap:6px;font-size:12px;font-weight:800;color:#946200;background:var(--warn-bg);border:2px solid var(--ink);padding:3px 10px;border-radius:var(--r-pill)}
+.rcard .num{text-align:right}
+.rcard .num .t{font-family:var(--font-ui);font-weight:800;font-size:16px}
+.rcard .num .m{font-family:var(--font-display);font-weight:900;font-size:22px;color:var(--coral)}
+
+.live{background:var(--paper);border:2.5px solid var(--ink);border-radius:var(--r-xl);padding:26px;text-align:center;box-shadow:var(--sh-sticker)}
+.live .cap{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:800}
+.live .timer{font-family:var(--font-display);font-weight:900;font-size:52px;letter-spacing:.02em;margin:4px 0}
+.live .amount{font-family:var(--font-display);font-weight:900;font-size:40px;color:var(--success)}
+.finscreen{background:var(--ink);color:#fff;border-radius:var(--r-xl);padding:26px;text-align:center;border:2.5px solid var(--ink);box-shadow:var(--sh-pop)}
+.finscreen .amount{font-family:var(--font-display);font-weight:900;font-size:56px;color:var(--yellow)}
+
+.toast{display:flex;gap:10px;align-items:center;background:var(--paper);border:2.5px solid var(--ink);border-radius:var(--r-md);padding:12px 14px;box-shadow:var(--sh-sticker-sm);font-weight:700;font-size:14px}
+.toast.ok{background:var(--success-bg)} .toast.warn{background:var(--warn-bg)} .toast.err{background:var(--danger-bg)}
+
+/* ── Slots de assets ────────────────────── */
+.slot{border:3px dashed var(--teal);border-radius:var(--r-lg);background:rgba(46,157,166,.06);
+  padding:20px;text-align:center;color:var(--teal-700)}
+.slot .ph{font-family:var(--font-display);font-weight:900;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.slot small{display:block;color:var(--ink-soft);font-weight:600;margin-top:6px;font-size:12px}
+.slot .box{height:90px;display:grid;place-items:center;font-size:30px;opacity:.5}
+
+.note{background:#fff;border:2px solid var(--ink);border-left-width:8px;border-radius:var(--r-md);padding:14px 16px;font-size:14px;box-shadow:var(--sh-sticker-sm)}
+.note b{font-weight:800}
+footer{padding:40px 0 60px;text-align:center;color:var(--ink-soft);font-size:13px}
+.pill-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">Design System · v0.1 (para revisión)</span>
+    <h1 class="display">RecarGo <span class="out">×</span> Vibra Perú</h1>
+    <p>Lenguaje visual para la webapp de alquiler de baterías. Toma la energía de fiesta de Vibra
+       — estilo sticker, contornos gruesos, color saturado — y la baja a una herramienta que 3 operadores
+       usan con una mano, con sol de frente, sin margen de error. <b>Festivo, pero funcional.</b></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 PRINCIPIOS -->
+<section>
+  <div class="sec-h"><span class="n">01</span><h2>Principios</h2></div>
+  <p class="sec-sub">Cuatro reglas que resuelven cualquier duda de diseño en la app.</p>
+  <div class="grid g-4">
+    <div class="princ"><div class="ic" style="background:var(--coral)"><svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 13h6l-1 7 9-11h-6z"/></svg></div><h3>Energía Vibra</h3><p>Color saturado, tipografía protagonista, formas tipo sticker. Se siente fiesta.</p></div>
+    <div class="princ"><div class="ic" style="background:var(--ink)"><svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m17 17 4 4"/></svg></div><h3>Legible primero</h3><p>Alto contraste, texto grande, jamás sacrificamos claridad por estética.</p></div>
+    <div class="princ"><div class="ic" style="background:var(--yellow)"><svg width="22" height="22" fill="none" stroke="#241611" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M17 10h3v4h-3"/></svg></div><h3>Toca fácil</h3><p>Targets grandes (≥52px), botones pill, mínimo tipeo. Operable con una mano.</p></div>
+    <div class="princ"><div class="ic" style="background:var(--blue)"><svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg></div><h3>Color con rol</h3><p>Coral = acción. Amarillo = energía. Verde = activo. Cada color significa algo.</p></div>
+  </div>
+</section>
+
+<!-- 02 COLOR -->
+<section>
+  <div class="sec-h"><span class="n">02</span><h2>Paleta</h2></div>
+  <p class="sec-sub">Extraída de la pieza gráfica de Vibra × RecarGo. Marca arriba, neutros y semánticos abajo.</p>
+
+  <h3 style="font-weight:800;margin:0 0 12px">Marca</h3>
+  <div class="grid g-5" style="margin-bottom:24px">
+    <div class="sw"><div class="chip" style="background:var(--coral)">Acción / CTA</div><div class="meta"><b>Coral</b><code>#EF5340</code><small>Botón crear, montos, énfasis.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--yellow);color:var(--ink)">Energía / marca</div><div class="meta"><b>Amarillo</b><code>#F6B01D</code><small>Highlights, ⚡, power bank.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--teal)">Fondo / calma</div><div class="meta"><b>Teal</b><code>#2E9DA6</code><small>Cabeceras, superficies frías.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--blue)">Info</div><div class="meta"><b>Azul</b><code>#26A9E0</code><small>Enlaces, estados informativos.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--purple)">Decorativo</div><div class="meta"><b>Morado</b><code>#8C4BA0</code><small>Acentos, fondos de eventos.</small></div></div>
+  </div>
+
+  <h3 style="font-weight:800;margin:0 0 12px">Tinta, papel y estados</h3>
+  <div class="grid g-5">
+    <div class="sw"><div class="chip" style="background:var(--ink)">Texto / contorno</div><div class="meta"><b>Tinta</b><code>#241611</code><small>Todo el texto y los bordes sticker.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--cream);color:var(--ink)">Fondo base</div><div class="meta"><b>Crema</b><code>#FBF5EA</code><small>Fondo "papel" de la app.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--success)">Activo / OK</div><div class="meta"><b>Verde</b><code>#2FA968</code><small>Renta activa, expulsión OK.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--warn);color:var(--ink)">Atención</div><div class="meta"><b>Ámbar</b><code>#F6B01D</code><small>Expulsión manual, avisos.</small></div></div>
+    <div class="sw"><div class="chip" style="background:var(--danger)">Peligro</div><div class="meta"><b>Rojo</b><code>#D63A28</code><small>Cancelar, errores.</small></div></div>
+  </div>
+  <div class="note" style="margin-top:20px;border-left-color:var(--yellow)">
+    <b>Contraste:</b> texto siempre en <b>Tinta sobre Crema/Papel</b> (ratio ≈ 13:1). El coral y el amarillo
+    solo llevan texto en blanco/tinta a tamaños grandes y en negrita (títulos, botones), nunca en párrafos.
+  </div>
+</section>
+
+<!-- 03 TIPOGRAFÍA -->
+<section>
+  <div class="sec-h"><span class="n">03</span><h2>Tipografía</h2></div>
+  <p class="sec-sub">Dos familias, roles claros. <b>Monument Extended</b> aporta el carácter Vibra en los momentos grandes;
+     un sans neutro sostiene todo lo que se lee.</p>
+
+  <div class="grid g-2">
+    <div class="spec">
+      <div class="lbl">Display — Monument Extended UltraBold</div>
+      <div class="display" style="font-size:44px">SORTEAMOS</div>
+      <div class="display" style="font-size:44px;color:var(--coral)">01:24:07</div>
+      <div class="display" style="font-size:44px;color:var(--success)">S/ 20.00</div>
+      <p style="font-size:13px;color:var(--ink-soft);margin-top:12px">
+        Títulos de pantalla, el contador en vivo, el monto. Siempre grande, alto, en mayúsculas o números.
+        <b>Nunca</b> para texto corrido.
+      </p>
+      <div class="note" style="margin-top:12px;border-left-color:var(--coral)">
+        Vista previa con <b>Archivo</b> como stand-in. Al integrar, se auto-hospeda
+        <code>MonumentExtended-Ultrabold.woff2</code> (y variantes) en <code>/static/fonts/</code>.
+      </div>
+    </div>
+
+    <div class="spec">
+      <div class="lbl">UI / Cuerpo — Inter (recomendado)</div>
+      <div style="font-family:var(--font-ui);font-weight:900;font-size:30px">Crear alquiler</div>
+      <div style="font-family:var(--font-ui);font-weight:700;font-size:20px;margin-top:4px">Finalizar renta</div>
+      <p style="font-family:var(--font-ui);font-size:15px;margin-top:8px">
+        El usuario dicta su documento, el operador crea el alquiler y la estación expulsa la batería.
+        Este es el peso y tamaño de lectura estándar (16px).
+      </p>
+      <div class="mono-num" style="font-weight:700;font-size:15px;margin-top:6px">DNI 12345678 · 0123456789</div>
+      <div class="note" style="margin-top:12px;border-left-color:var(--blue)">
+        <b>Decisión a confirmar:</b> Inter (limpio, neutral) vs. un sans con más carácter
+        (p. ej. <i>Archivo</i>). Recomiendo Inter por legibilidad al sol.
+      </div>
+    </div>
+  </div>
+
+  <div class="spec" style="margin-top:16px">
+    <div class="lbl">Escala tipográfica (mobile-first)</div>
+    <div class="type-row"><span class="tag">Display / Hero</span><span class="display" style="font-size:40px">40 / 900</span></div>
+    <div class="type-row"><span class="tag">Contador · Monto</span><span class="display" style="font-size:34px">34 / 900</span></div>
+    <div class="type-row"><span class="tag">Título H1</span><span style="font-weight:900;font-size:28px">28 / 900</span></div>
+    <div class="type-row"><span class="tag">Título H2</span><span style="font-weight:800;font-size:22px">22 / 800</span></div>
+    <div class="type-row"><span class="tag">Botón / Label</span><span style="font-weight:800;font-size:16px">16 / 800</span></div>
+    <div class="type-row"><span class="tag">Cuerpo</span><span style="font-weight:500;font-size:16px">16 / 500</span></div>
+    <div class="type-row"><span class="tag">Small / meta</span><span style="font-weight:500;font-size:13px">13 / 500</span></div>
+  </div>
+</section>
+
+<!-- 04 ÍCONOS -->
+<section>
+  <div class="sec-h"><span class="n">04</span><h2>Iconografía</h2></div>
+  <p class="sec-sub">Librería recomendada: <b>Phosphor Icons</b> (peso <b>Bold</b> para líneas, <b>Fill</b> para acentos).
+     Redondeada y gruesa — dialoga con el contorno sticker. Trazo 2.4px, esquinas redondeadas. Estos son bocetos del set:</p>
+  <div class="icons">
+    <figure><svg viewBox="0 0 24 24"><path d="M13 2 4 13h6l-1 8 9-11h-6z"/></svg><figcaption>bolt / energía</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2.5"/><path d="M18 11h3v2h-3"/><path d="M6 10v4"/></svg><figcaption>battery</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><figcaption>clock / tiempo</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><figcaption>usuario / DNI</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><figcaption>buscar</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg><figcaption>check / OK</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg><figcaption>cerrar / cancelar</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg><figcaption>expulsar</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><figcaption>config</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><figcaption>continuar</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 21h14"/></svg><figcaption>descargar CSV</figcaption></figure>
+    <figure><svg viewBox="0 0 24 24"><path d="M4 4h16v14H7l-3 3z"/></svg><figcaption>aviso / toast</figcaption></figure>
+  </div>
+</section>
+
+<!-- 05 FORMAS Y SOMBRAS -->
+<section>
+  <div class="sec-h"><span class="n">05</span><h2>Formas & Sombras</h2></div>
+  <p class="sec-sub">El sello del sistema: esquinas redondeadas generosas + <b>sombra sólida con offset</b> (estilo sticker/comic),
+     no difuminada. Para superficies tranquilas de la app usamos una sombra suave.</p>
+
+  <div class="grid g-4" style="margin-bottom:24px">
+    <div><div class="demo-box" style="border-radius:var(--r-sm)">10px</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)">--r-sm · inputs internos</p></div>
+    <div><div class="demo-box" style="border-radius:var(--r-md)">16px</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)">--r-md · campos, notas</p></div>
+    <div><div class="demo-box" style="border-radius:var(--r-lg)">22px</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)">--r-lg · cards</p></div>
+    <div><div class="demo-box" style="border-radius:var(--r-pill)">pill</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)">--r-pill · botones, badges</p></div>
+  </div>
+
+  <div class="grid g-3">
+    <div><div class="demo-box" style="border-radius:var(--r-lg);box-shadow:var(--sh-sticker)">4px 4px 0</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)"><b>Sticker</b> · botones, cards protagonistas</p></div>
+    <div><div class="demo-box" style="border-radius:var(--r-lg);box-shadow:var(--sh-card);border-color:var(--line)">soft 0 6 18</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)"><b>Card</b> · listas, superficies calmadas</p></div>
+    <div><div class="demo-box" style="border-radius:var(--r-lg);box-shadow:var(--sh-sticker-sm),var(--glow-yellow)">glow</div><p style="font-size:12px;text-align:center;margin-top:8px;color:var(--ink-soft)"><b>Glow</b> · foco de inputs / momento ⚡</p></div>
+  </div>
+</section>
+
+<!-- 06 BOTONES -->
+<section>
+  <div class="sec-h"><span class="n">06</span><h2>Botones</h2></div>
+  <p class="sec-sub">Pill, contorno de tinta, sombra sticker. Al presionar se "hunden" (translada + sombra corta). Presiónalos aquí:</p>
+  <div class="pill-row" style="margin-bottom:16px">
+    <button class="btn btn-coral btn-lg">＋ Crear alquiler</button>
+    <button class="btn btn-dark btn-lg">✓ Finalizar renta</button>
+    <button class="btn btn-yellow">⏏ Expulsar batería</button>
+  </div>
+  <div class="pill-row">
+    <button class="btn btn-blue">Continuar</button>
+    <button class="btn btn-ghost">Cancelar</button>
+    <button class="btn btn-ghost" style="opacity:.45;box-shadow:none">Deshabilitado</button>
+  </div>
+</section>
+
+<!-- 07 COMPONENTES DE LA APP -->
+<section>
+  <div class="sec-h"><span class="n">07</span><h2>Componentes en la app</h2></div>
+  <p class="sec-sub">El sistema aplicado a las piezas reales de la webapp.</p>
+
+  <div class="grid g-2">
+    <div>
+      <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px">Badges de estado</div>
+      <div class="pill-row" style="margin-bottom:24px">
+        <span class="badge b-act"><span class="dot"></span>Activa</span>
+        <span class="badge b-fin"><span class="dot"></span>Finalizada</span>
+        <span class="badge b-can"><span class="dot"></span>Cancelada</span>
+      </div>
+
+      <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px">Campo de documento (sin formato fijo)</div>
+      <div class="field" style="margin-bottom:24px">
+        <label>Documento del usuario</label>
+        <input value="X1234567AB" >
+      </div>
+
+      <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px">Avisos (toast)</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="toast ok">✅ Renta creada. Batería expulsada (slot 1, 100%).</div>
+        <div class="toast warn">⚠️ Renta creada. Expulsión MANUAL: Bajie no respondió.</div>
+        <div class="toast err">⛔ El documento ya tiene una renta activa.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px">Fila de alquiler (panel admin)</div>
+      <div class="rcard" style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <div>
+            <div class="dni">12345678 <span class="badge b-act" style="font-size:11px;vertical-align:middle"><span class="dot"></span>Activa</span></div>
+            <div class="meta">Estación 1 · inicio 17:21</div>
+            <div class="flag">⚠ expulsión manual</div>
+          </div>
+          <div class="num"><div class="t mono-num">01:24:07</div><div class="m">S/ 20.00</div></div>
+        </div>
+      </div>
+
+      <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px">Contador en vivo (usuario)</div>
+      <div class="live" style="margin-bottom:16px">
+        <div class="cap">Tiempo transcurrido</div>
+        <div class="timer mono-num">01:24:07</div>
+        <div class="cap">Costo acumulado</div>
+        <div class="amount">S/ 20.00</div>
+      </div>
+
+      <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:700;margin-bottom:10px">Pantalla final (para el POS)</div>
+      <div class="finscreen">
+        <div class="cap" style="color:rgba(255,255,255,.6)">Monto a pagar</div>
+        <div class="amount">S/ 20.00</div>
+        <div style="font-weight:700;margin-top:6px">1h 24m · fin 18:45</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 ASSETS -->
+<section style="border-bottom:0">
+  <div class="sec-h"><span class="n">08</span><h2>Slots de assets</h2></div>
+  <p class="sec-sub">Dónde irán las imágenes que me pasarás en PNG. Por ahora reservo el lugar, el tamaño y el uso.
+     <b>No incluyo ningún asset todavía.</b></p>
+  <div class="grid g-3">
+    <div class="slot"><div class="box">⚡🐂</div><div class="ph">Lockup Vibra × RecarGo</div><small>Header público y login. PNG horizontal, fondo transparente, ~320×80 @2x.</small></div>
+    <div class="slot"><div class="box">🐂</div><div class="ph">Mascota (toro azul)</div><small>Estados vacíos / éxito / pantalla final. PNG transparente ~600px lado mayor.</small></div>
+    <div class="slot"><div class="box">🔋</div><div class="ph">Power bank RecarGo</div><small>Hero de "consulta tu alquiler". PNG transparente vertical.</small></div>
+    <div class="slot"><div class="box">🟨</div><div class="ph">Isotipo ⚡ RecarGo</div><small>Favicon y avatar de header. SVG/PNG cuadrado.</small></div>
+    <div class="slot"><div class="box">▨</div><div class="ph">Textura de rayos</div><small>Fondo sutil (ya emulado en CSS). Opcional PNG/SVG tileable teal.</small></div>
+    <div class="slot"><div class="box">🎉</div><div class="ph">Sticker de confeti</div><small>Micro-celebración al crear/finalizar. PNG/Lottie opcional.</small></div>
+  </div>
+</section>
+
+<footer>
+  Design System · RecarGo × Vibra Perú — v0.1 para revisión ·
+  las fuentes/imágenes reales se integran en la siguiente iteración.
+</footer>
+
+</div>
+</body>
+</html>
