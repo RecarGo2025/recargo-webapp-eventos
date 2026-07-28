@@ -3,7 +3,11 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from zoneinfo import ZoneInfo
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # Python < 3.9 (el VPS corre 3.8)
+    from backports.zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
