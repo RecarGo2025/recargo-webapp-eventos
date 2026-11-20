@@ -57,8 +57,8 @@ npx wrangler secret put PANEL_PASSWORD                              # clave del 
 npx wrangler secret put BAJIE_KEY                                   # clave Basic de Bajie
 ```
 
-Para usar un subdominio propio, agrega en `wrangler.jsonc`
-`"routes": [{ "pattern": "eventos.recargo.pe", "custom_domain": true }]` y vuelve a correr `npm run deploy`.
+Dirección publicada: **https://eventos.recargo.pe** (dominio propio en `wrangler.jsonc`, `routes`).
+Para cambiar la contraseña del panel: `npx wrangler secret put PANEL_PASSWORD` y listo, sin redeploy.
 
 ## Día del evento
 

@@ -15,5 +15,7 @@
     "BAJIE_MOCK": "0"
   },
   // Secretos (no van aquí): PANEL_PASSWORD y BAJIE_KEY, con `wrangler secret put`.
+  // Dominio propio (la zona recargo.pe está en esta cuenta de Cloudflare).
+  "routes": [{ "pattern": "eventos.recargo.pe", "custom_domain": true }],
   "observability": { "enabled": true }
 }
