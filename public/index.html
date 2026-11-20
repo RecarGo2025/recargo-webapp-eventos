@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecarGo eventos</title>
+<style>
+  /* Marca RecarGo (biblioteca marca_recargo, tokens/brand.css): Poppins local y paleta oficial. */
+  @font-face { font-family: Poppins; font-weight: 400; font-display: swap; src: url(/fonts/poppins-400.ttf) format("truetype"); }
+  @font-face { font-family: Poppins; font-weight: 600; font-display: swap; src: url(/fonts/poppins-600.ttf) format("truetype"); }
+  @font-face { font-family: Poppins; font-weight: 700; font-display: swap; src: url(/fonts/poppins-700.ttf) format("truetype"); }
+  :root {
+    --azul: #03359B; --amarillo: #F6CF1E; --crema: #FFFAF4; --celeste: #65CFF2; --melon: #F59C7C;
+    --suave: #4F72B9;      /* azul aclarado para texto secundario (contraste AA sobre blanco) */
+    --borde: #DCE3F1; --ok: #15803D; --error: #B91C1C;
+    --card: 20px 20px 20px 4px; /* card A: esquina inferior izquierda más corta */
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Poppins, system-ui, sans-serif; background: var(--crema); color: var(--azul); font-size: 16px; line-height: 1.5; }
+  button, input, select { font: inherit; color: inherit; }
+
+  /* Cabecera: firma bicolor sobre azul */
+  header { background: var(--azul); color: var(--crema); position: sticky; top: 0; z-index: 5; }
+  .cab { max-width: 560px; margin: 0 auto; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between; }
+  .marca { display: flex; align-items: center; gap: 16px; }
+  .marca img { width: 160px; height: auto; display: block; }
+  .evento { color: var(--amarillo); font-weight: 700; font-size: 14px; letter-spacing: .04em; border-left: 1px solid rgba(255,250,244,.35); padding-left: 16px; }
+  .sel-maquina { display: flex; align-items: center; gap: 8px; font-size: 13px; flex: 1 1 200px; justify-content: flex-end; }
+  .sel-maquina select { font-weight: 600; padding: 8px 10px; border-radius: 10px; border: 0; background: var(--crema); color: var(--azul); flex: 1; max-width: 240px; }
+
+  main { max-width: 560px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
+  .card { background: #fff; border: 1px solid var(--borde); border-radius: var(--card); padding: 16px; }
+  h2 { margin: 0 0 12px; font-size: 17px; font-weight: 700; }
+  input, select.f { width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 10px; background: #fff; color: var(--azul); }
+  input::placeholder { color: #8FA3CC; }
+  input:focus, select:focus, button:focus-visible { outline: 3px solid var(--celeste); outline-offset: 1px; }
+  .campo { display: block; margin-bottom: 10px; }
+  .campo span { display: block; font-size: 13px; color: var(--suave); margin-bottom: 4px; }
+  button { font-weight: 600; border: 0; border-radius: 10px; padding: 12px 16px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: wait; }
+  .primario { background: var(--azul); color: var(--crema); width: 100%; }
+  .sec { background: #E3F6FD; color: var(--azul); }
+  .peligro { background: #FDE6DD; color: #A3361A; }
+  .chico { padding: 8px 12px; font-size: 14px; }
+  .msg { font-size: 14px; min-height: 0; }
+  .msg:not(:empty) { margin-top: 8px; }
+  .msg.ok { color: var(--ok); } .msg.error { color: var(--error); }
+
+  .expulsar { width: 100%; background: var(--amarillo); color: var(--azul); font-size: 19px; font-weight: 700; padding: 14px 16px; border-radius: var(--card); display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .expulsar img { width: 34px; height: 34px; }
+
+  /* Menú principal */
+  .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .menu-btn { background: #fff; border: 1px solid var(--borde); border-radius: var(--card); padding: 14px; text-align: left; display: grid; grid-template-columns: 40px 1fr; gap: 2px 10px; align-items: center; }
+  .menu-btn:hover { border-color: var(--azul); }
+  .menu-btn img { width: 40px; height: 40px; grid-row: span 2; }
+  .menu-btn .t { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .menu-btn small { color: var(--suave); font-size: 12px; font-weight: 400; line-height: 1.3; }
+  .menu-btn.ancho { grid-column: 1 / -1; }
+  .capsula { background: var(--amarillo); color: var(--azul); font-weight: 700; font-size: 13px; min-width: 28px; height: 24px; padding: 0 8px; border-radius: 12px 12px 12px 0; display: inline-flex; align-items: center; justify-content: center; }
+
+  /* Ventanas emergentes */
+  dialog.modal { border: 0; padding: 0; width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); border-radius: var(--card); background: #fff; color: var(--azul); box-shadow: 0 24px 64px rgba(3, 53, 155, .28); }
+  dialog.modal[open] { display: flex; flex-direction: column; }
+  dialog::backdrop { background: rgba(3, 53, 155, .45); }
+  .modal-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 14px 20px; border-bottom: 1px solid var(--borde); }
+  .modal-cab h2 { margin: 0; }
+  .cerrar { background: #EEF2FB; color: var(--azul); font-size: 22px; line-height: 1; width: 40px; height: 40px; padding: 0; border-radius: 50%; }
+  .modal-cuerpo { padding: 16px 20px 20px; overflow: auto; flex: 1; } /* flex: el área vacía no cuenta como "clic fuera" */
+  @media (max-width: 640px) {
+    dialog.modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; }
+  }
+
+  /* Alquileres */
+  .filtros { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .filtros input { flex: 1 1 200px; min-width: 0; }
+  .filtros select { width: auto; }
+  .fila { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--borde); }
+  .fila .dni { font-weight: 700; font-size: 17px; }
+  .fila .meta { color: var(--suave); font-size: 13px; }
+  .fila .acc { display: flex; gap: 8px; }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: #EAF7EE; color: var(--ok); font-weight: 600; }
+  .vacio { color: var(--suave); font-size: 14px; padding: 12px 0; }
+
+  /* Inventario */
+  .inv { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .tile { border: 1px solid var(--borde); border-radius: var(--card); padding: 14px; }
+  .tile.sel { border: 2px solid var(--azul); background: #F5F8FF; }
+  .tile .n { font-size: 40px; font-weight: 700; line-height: 1.1; }
+  .tile .nom { font-weight: 600; }
+  .tile small { color: var(--suave); display: block; font-size: 12px; }
+
+  /* Configuración */
+  .cfg { display: grid; grid-template-columns: 1fr 1fr 90px 90px 90px; gap: 8px; align-items: end; margin-top: 8px; }
+  #form-maquina button { grid-column: span 2; }
+  .cfg.cab-cfg { font-size: 12px; color: var(--suave); margin-top: 0; }
+  .cfg small.m { display: none; font-size: 12px; color: var(--suave); margin-bottom: 4px; }
+  @media (max-width: 640px) {
+    .cfg { grid-template-columns: 1fr 1fr; padding-bottom: 12px; border-bottom: 1px solid var(--borde); }
+    .cfg.cab-cfg { display: none; }
+    .cfg small.m { display: block; }
+  }
+  a { color: var(--azul); font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="cab">
+    <div class="marca">
+      <img src="/marca/firma-bicolor.svg" alt="RecarGo" width="160" height="34">
+      <span id="evento" class="evento">EVENTO</span>
+    </div>
+    <label class="sel-maquina">Máquina
+      <select id="maquina" aria-label="Máquina seleccionada"></select>
+    </label>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Nuevo alquiler</h2>
+    <form id="form-alquiler" autocomplete="off">
+      <label class="campo"><span>Documento (DNI, CE o pasaporte)</span>
+        <input id="dni" required></label>
+      <label class="campo"><span>Teléfono (9 dígitos)</span>
+        <input id="telefono" inputmode="numeric" maxlength="15" required></label>
+      <button class="primario" type="submit">Registrar alquiler</button>
+      <div id="msg-alquiler" class="msg"></div>
+    </form>
+  </section>
+
+  <div>
+    <button id="btn-expulsar" class="expulsar"><img src="/marca/icono-bateria-mono.svg" alt="">Expulsar batería</button>
+    <div id="msg-expulsar" class="msg"></div>
+  </div>
+
+  <nav class="menu" aria-label="Menú">
+    <button class="menu-btn" data-abrir="dlg-alquileres">
+      <img src="/marca/icono-devolucion.svg" alt="">
+      <span class="t">Alquileres <b id="n-en-curso" class="capsula">0</b></span>
+      <small>en curso · buscar · devolver</small>
+    </button>
+    <button class="menu-btn" data-abrir="dlg-inventario">
+      <img src="/marca/icono-bateria.svg" alt="">
+      <span class="t">Inventario</span>
+      <small id="resumen-inv">por máquina</small>
+    </button>
+    <button class="menu-btn ancho" data-abrir="dlg-config">
+      <img src="/marca/icono-estacion.svg" alt="">
+      <span class="t">Configuración de máquinas</span>
+      <small>IDs, baterías iniciales y descarga CSV</small>
+    </button>
+  </nav>
+</main>
+
+<dialog id="dlg-alquileres" class="modal" aria-labelledby="t-alq">
+  <div class="modal-cab"><h2 id="t-alq">Alquileres <span id="conteo" style="color:var(--suave); font-weight:400"></span></h2>
+    <button class="cerrar" data-cerrar aria-label="Cerrar">×</button></div>
+  <div class="modal-cuerpo">
+    <div class="filtros">
+      <input id="buscar" placeholder="Buscar por documento o teléfono" autocomplete="off">
+      <select id="estado" class="f">
+        <option value="en_curso">En curso</option>
+        <option value="devuelta">Devueltos</option>
+        <option value="todos">Todos</option>
+      </select>
+    </div>
+    <div id="lista"></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-inventario" class="modal" aria-labelledby="t-inv">
+  <div class="modal-cab"><h2 id="t-inv">Inventario de baterías</h2>
+    <button class="cerrar" data-cerrar aria-label="Cerrar">×</button></div>
+  <div class="modal-cuerpo">
+    <div id="inventario" class="inv"></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-config" class="modal" aria-labelledby="t-cfg">
+  <div class="modal-cab"><h2 id="t-cfg">Configuración de máquinas</h2>
+    <button class="cerrar" data-cerrar aria-label="Cerrar">×</button></div>
+  <div class="modal-cuerpo">
+    <div class="cfg cab-cfg"><div>Nombre</div><div>ID de máquina (Bajie)</div><div>Empezó con</div><div></div><div></div></div>
+    <div id="cfg-lista"></div>
+    <form id="form-maquina" class="cfg" autocomplete="off">
+      <label><small class="m">Nombre</small><input name="nombre" placeholder="Nombre (ej. Stand 1)" required></label>
+      <label><small class="m">ID de máquina</small><input name="device_id" placeholder="ID de máquina" required></label>
+      <label><small class="m">Empezó con</small><input name="inicial" type="number" min="0" placeholder="Cant." required></label>
+      <button class="primario chico" type="submit">Agregar</button>
+    </form>
+    <div id="msg-config" class="msg"></div>
+    <p style="font-size:14px; margin-bottom:0">Descargar todos los alquileres: <a href="/api/export.csv">CSV</a></p>
+  </div>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let estado = { maquinas: [], alquileres: [], en_curso: 0 };
+let firmaMaquinas = "";
+let primeraCarga = true;
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function msg(id, texto, tipo) { const el = $(id); el.textContent = texto || ""; el.className = "msg " + (tipo || ""); }
+function hora(ms) { return new Date(ms).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit", timeZone: "America/Lima" }); }
+function transcurrido(ms) {
+  const min = Math.max(0, Math.floor((Date.now() - ms) / 60000));
+  return min < 60 ? `${min} min` : `${Math.floor(min / 60)} h ${min % 60} min`;
+}
+function guardado(clave) { try { return localStorage.getItem(clave); } catch { return null; } }
+function guardar(clave, v) { try { localStorage.setItem(clave, v); } catch {} }
+function maquinaSel() {
+  const id = Number($("maquina").value);
+  return estado.maquinas.find((m) => m.id === id) || null;
+}
+
+async function llamar(metodo, url, body) {
+  const res = await fetch(url, {
+    method: metodo,
+    headers: body ? { "Content-Type": "application/json" } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}
+
+async function cargar() {
+  const q = encodeURIComponent($("buscar").value.trim());
+  try {
+    estado = await llamar("GET", `/api/estado?estado=${$("estado").value}&q=${q}`);
+  } catch (e) { return; }
+  $("evento").textContent = estado.evento;
+  pintarSelector();
+  pintarResumen();
+  pintarInventario();
+  pintarLista();
+  const firma = JSON.stringify(estado.maquinas.map((m) => [m.id, m.nombre, m.device_id, m.inicial]));
+  if (firma !== firmaMaquinas) { firmaMaquinas = firma; pintarConfig(); }
+  if (primeraCarga && !estado.maquinas.length) $("dlg-config").showModal(); // primer uso: configurar
+  primeraCarga = false;
+}
+
+function pintarSelector() {
+  const sel = $("maquina");
+  const previa = guardado("maquina") || sel.value;
+  sel.innerHTML = estado.maquinas.length
+    ? estado.maquinas.map((m) => `<option value="${m.id}">${esc(m.nombre)}</option>`).join("")
+    : `<option value="">Sin máquinas</option>`;
+  if (estado.maquinas.some((m) => String(m.id) === previa)) sel.value = previa;
+}
+
+function pintarResumen() {
+  $("n-en-curso").textContent = estado.en_curso;
+  const m = maquinaSel();
+  $("resumen-inv").textContent = m ? `${m.nombre}: ${m.esperadas} en la máquina` : "por máquina";
+}
+
+function pintarInventario() {
+  const sel = maquinaSel();
+  $("inventario").innerHTML = estado.maquinas.length
+    ? estado.maquinas.map((m) => `
+      <div class="tile ${sel && sel.id === m.id ? "sel" : ""}">
+        <div class="nom">${esc(m.nombre)}</div>
+        <div class="n">${m.esperadas}</div>
+        <small>deberían estar en la máquina</small>
+        <small>Empezó con ${m.inicial} · salieron ${m.salieron} · volvieron ${m.volvieron}</small>
+        <button class="sec chico" style="margin-top:10px; width:100%" data-consultar="${m.id}">Ver en máquina</button>
+        <small style="margin-top:4px">${reales[m.id] ? esc(reales[m.id]) : ""}</small>
+      </div>`).join("")
+    : `<div class="vacio">Aún no hay máquinas. Agrégalas en Configuración.</div>`;
+}
+
+function pintarLista() {
+  const lista = estado.alquileres;
+  $("conteo").textContent = `(${lista.length})`;
+  $("lista").innerHTML = lista.length
+    ? lista.map((r) => `
+      <div class="fila">
+        <div>
+          <div class="dni">${esc(r.dni)} ${r.status === "devuelta" ? '<span class="badge">Devuelta</span>' : ""}</div>
+          <div class="meta">Tel. ${esc(r.telefono)} · ${esc(r.maquina || "?")} · ${hora(r.start_at)}
+            ${r.status === "en_curso" ? "· " + transcurrido(r.start_at) : "→ " + hora(r.end_at) + " en " + esc(r.maquina_devolucion || "?")}</div>
+        </div>
+        <div class="acc">
+          ${r.status === "en_curso" ? `<button class="sec chico" data-devolver="${r.id}">Devolver</button>
+          <button class="peligro chico" data-eliminar="${r.id}">Eliminar</button>` : ""}
+        </div>
+      </div>`).join("")
+    : `<div class="vacio">No hay alquileres para mostrar.</div>`;
+}
+
+function pintarConfig() {
+  $("cfg-lista").innerHTML = estado.maquinas.map((m) => `
+    <form class="cfg" data-id="${m.id}" autocomplete="off">
+      <label><small class="m">Nombre</small><input name="nombre" value="${esc(m.nombre)}" required></label>
+      <label><small class="m">ID de máquina</small><input name="device_id" value="${esc(m.device_id)}" required></label>
+      <label><small class="m">Empezó con</small><input name="inicial" type="number" min="0" value="${m.inicial}" required></label>
+      <button class="sec chico" type="submit">Guardar</button>
+      <button class="peligro chico" type="button" data-quitar="${m.id}">Quitar</button>
+    </form>`).join("");
+}
+
+// ── Ventanas emergentes ──
+document.addEventListener("click", (e) => {
+  const abrir = e.target.closest("[data-abrir]");
+  if (abrir) { $(abrir.dataset.abrir).showModal(); cargar(); }
+  if (e.target.closest("[data-cerrar]")) e.target.closest("dialog").close();
+});
+document.querySelectorAll("dialog").forEach((d) =>
+  d.addEventListener("click", (e) => { if (e.target === d) d.close(); }) // clic fuera = cerrar
+);
+
+// ── Acciones ──
+$("maquina").addEventListener("change", () => {
+  guardar("maquina", $("maquina").value);
+  pintarResumen();
+  pintarInventario();
+});
+$("estado").addEventListener("change", cargar);
+let tBuscar;
+$("buscar").addEventListener("input", () => { clearTimeout(tBuscar); tBuscar = setTimeout(cargar, 250); });
+
+$("form-alquiler").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const m = maquinaSel();
+  if (!m) return msg("msg-alquiler", "Primero agrega y selecciona una máquina.", "error");
+  const btn = e.submitter; btn.disabled = true;
+  try {
+    await llamar("POST", "/api/alquileres", { dni: $("dni").value, telefono: $("telefono").value, station_id: m.id });
+    msg("msg-alquiler", `Registrado en ${m.nombre}. Ahora expulsa la batería.`, "ok");
+    $("dni").value = ""; $("telefono").value = "";
+    cargar();
+  } catch (err) { msg("msg-alquiler", err.message, "error"); }
+  btn.disabled = false;
+});
+
+$("btn-expulsar").addEventListener("click", async () => {
+  const m = maquinaSel();
+  if (!m) return msg("msg-expulsar", "Primero agrega y selecciona una máquina.", "error");
+  if (!confirm(`¿Expulsar una batería de ${m.nombre}?`)) return;
+  const btn = $("btn-expulsar"); btn.disabled = true;
+  msg("msg-expulsar", "Expulsando…");
+  try {
+    const r = await llamar("POST", "/api/expulsar", { station_id: m.id });
+    msg("msg-expulsar", r.ok ? `${r.msg} (slot ${r.slot}, carga ${r.carga}%)` : r.msg, r.ok ? "ok" : "error");
+  } catch (err) { msg("msg-expulsar", err.message, "error"); }
+  btn.disabled = false;
+});
+
+$("lista").addEventListener("click", async (e) => {
+  const dev = e.target.dataset.devolver, del = e.target.dataset.eliminar;
+  if (!dev && !del) return;
+  const r = estado.alquileres.find((x) => String(x.id) === (dev || del));
+  try {
+    if (dev) {
+      const m = maquinaSel();
+      if (!m) return alert("Primero selecciona la máquina donde se devuelve.");
+      if (!confirm(`¿Registrar la devolución de ${r.dni} en ${m.nombre}?`)) return;
+      await llamar("POST", `/api/alquileres/${dev}/devolver`, { station_id: m.id });
+    } else {
+      if (!confirm(`¿Eliminar el alquiler de ${r.dni}? Solo para registros hechos por error.`)) return;
+      await llamar("DELETE", `/api/alquileres/${del}`);
+    }
+    cargar();
+  } catch (err) { alert(err.message); }
+});
+
+// Lo que reporta la máquina real (solo lectura), para comparar con lo esperado.
+const reales = {};
+$("inventario").addEventListener("click", async (e) => {
+  const id = e.target.dataset.consultar;
+  if (!id) return;
+  reales[id] = "Consultando…"; pintarInventario();
+  try {
+    const r = await llamar("GET", `/api/maquinas/${id}/consulta`);
+    reales[id] = r.ok ? `La máquina reporta ${r.n} (${hora(Date.now())})` : r.msg;
+  } catch (err) { reales[id] = err.message; }
+  pintarInventario();
+});
+
+$("form-maquina").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  try {
+    await llamar("POST", "/api/maquinas", Object.fromEntries(f));
+    e.target.reset(); msg("msg-config", "Máquina agregada.", "ok"); cargar();
+  } catch (err) { msg("msg-config", err.message, "error"); }
+});
+
+$("cfg-lista").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  try {
+    await llamar("PUT", `/api/maquinas/${e.target.dataset.id}`, Object.fromEntries(f));
+    msg("msg-config", "Guardado.", "ok"); cargar();
+  } catch (err) { msg("msg-config", err.message, "error"); }
+});
+
+$("cfg-lista").addEventListener("click", async (e) => {
+  const id = e.target.dataset.quitar;
+  if (!id || !confirm("¿Quitar esta máquina?")) return;
+  try { await llamar("DELETE", `/api/maquinas/${id}`); msg("msg-config", "Máquina quitada.", "ok"); cargar(); }
+  catch (err) { msg("msg-config", err.message, "error"); }
+});
+
+cargar();
+// Refresco para que todos los operadores vean lo mismo (solo con la pestaña visible).
+setInterval(() => { if (!document.hidden) cargar(); }, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) cargar(); });
+</script>
+</body>
+</html>

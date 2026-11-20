@@ -1,0 +1,19 @@
+{
+  // RecarGo eventos: un Worker (src/worker.js) + la página (public/) + base D1.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "recargo-eventos",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  // run_worker_first: la clave del panel protege también la página.
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": true },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "recargo-eventos", "database_id": "9bc40bdd-8d8e-499d-af79-bed97a3e5eb7" }
+  ],
+  "vars": {
+    "EVENTO_NOMBRE": "TOYOTA LAND",
+    "BAJIE_BASE_URL": "https://developer.chargenow.top/cdb-open-api/v1",
+    "BAJIE_MOCK": "0"
+  },
+  // Secretos (no van aquí): PANEL_PASSWORD y BAJIE_KEY, con `wrangler secret put`.
+  "observability": { "enabled": true }
+}

@@ -1,13 +1,8 @@
+node_modules/
+# Base local de pruebas (puede tener DNIs y teléfonos de prueba)
+.wrangler/
+# Secretos locales (clave del panel y de Bajie)
+.dev.vars
 .env
-*.db
-*.db-wal
-*.db-shm
-backups/
-__pycache__/
-*.pyc
-.venv/
-venv/
+*.csv
 .DS_Store
-scratch/
-bin/tailwindcss
-scratch_shots/
