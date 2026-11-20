@@ -18,14 +18,15 @@ Vibra Perú) sigue en la rama `main`.
 - **Configuración**: nombre, ID de máquina (Bajie) y con cuántas baterías empezó.
 - **CSV** con todos los alquileres.
 - El panel se refresca cada 30 s con la pestaña visible (cuida el límite gratis de D1: 5 M filas leídas por día).
-- Todo el panel pide una clave (`PANEL_PASSWORD`). El usuario puede ser cualquiera.
+- Acceso con **enlace con llave**: `https://eventos.recargo.pe/?llave=...`. Se abre una vez por celular,
+  la llave queda guardada (cookie de 60 días) y no se vuelve a pedir. Sin la llave: "Acceso restringido".
 
 No incluye cobro, página pública para el cliente ni verificación por SMS.
 
 ## Archivos
 
 ```
-src/worker.js      servidor: API, clave del panel y llamadas a Bajie
+src/worker.js      servidor: API, acceso con llave y llamadas a Bajie
 public/index.html  la página del panel (HTML + JS, sin build): pantalla principal
                    (registro + expulsar + menú) y ventanas para Alquileres,
                    Inventario y Configuración
@@ -40,9 +41,9 @@ wrangler.jsonc     configuración de Cloudflare (nombre del evento en EVENTO_NOM
 
 ```bash
 npm install
-printf 'PANEL_PASSWORD="prueba"\nBAJIE_MOCK="1"\n' > .dev.vars   # modo prueba: no expulsa nada real
+printf 'PANEL_LLAVE="prueba"\nBAJIE_MOCK="1"\n' > .dev.vars   # modo prueba: no expulsa nada real
 npm run db:local
-npm run dev          # http://127.0.0.1:8787  (clave: prueba)
+npm run dev          # abrir http://127.0.0.1:8787/?llave=prueba
 ```
 
 ## Publicar en Cloudflare (una sola vez)
@@ -53,16 +54,16 @@ npx wrangler d1 create recargo-eventos                              # crea la ba
                                                                     # en wrangler.jsonc, dentro de d1_databases
 npm run db:remote                                                   # crea las tablas
 npm run deploy                                                      # publica y muestra la URL
-npx wrangler secret put PANEL_PASSWORD                              # clave del panel
+npx wrangler secret put PANEL_LLAVE                                 # llave del enlace (texto largo al azar)
 npx wrangler secret put BAJIE_KEY                                   # clave Basic de Bajie
 ```
 
 Dirección publicada: **https://eventos.recargo.pe** (dominio propio en `wrangler.jsonc`, `routes`).
-Para cambiar la contraseña del panel: `npx wrangler secret put PANEL_PASSWORD` y listo, sin redeploy.
+Para cambiar la llave (invalida los celulares ya guardados): `npx wrangler secret put PANEL_LLAVE`, sin redeploy.
 
 ## Día del evento
 
-1. Abrir el panel, poner la clave.
+1. Abrir el enlace con llave en cada celular.
 2. **Configuración de máquinas**: agregar cada máquina con su ID de Bajie y con cuántas empezó.
 3. Cada operador elige su máquina arriba.
 4. Probar **Ver en máquina** antes de abrir: si responde con un número, la conexión con Bajie está bien.

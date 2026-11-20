@@ -3,14 +3,24 @@
 
 export default {
   async fetch(request, env) {
-    if (!(await autorizado(request, env))) {
-      return new Response("Acceso restringido", {
-        status: 401,
-        headers: { "WWW-Authenticate": 'Basic realm="RecarGo eventos", charset="UTF-8"' },
+    const url = new URL(request.url);
+
+    // Enlace con llave: /?llave=XXXX guarda la llave en una cookie del celular y
+    // limpia la dirección. Después no se vuelve a pedir nada en ese celular.
+    const llaveUrl = url.searchParams.get("llave");
+    if (llaveUrl !== null) {
+      if (!llaveValida(llaveUrl, env)) return sinAcceso();
+      url.searchParams.delete("llave");
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: url.pathname + url.search,
+          "Set-Cookie": `${COOKIE}=${encodeURIComponent(llaveUrl)}; Path=/; Max-Age=${60 * 24 * 3600}; HttpOnly; Secure; SameSite=Lax`,
+        },
       });
     }
+    if (!llaveValida(leerCookie(request, COOKIE), env)) return sinAcceso();
 
-    const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
 
     try {
@@ -22,20 +32,35 @@ export default {
   },
 };
 
-// ── Clave del panel (Basic Auth contra el secreto PANEL_PASSWORD) ──
-async function autorizado(request, env) {
-  if (!env.PANEL_PASSWORD) return false;
-  const [scheme, b64] = (request.headers.get("Authorization") || "").split(" ");
-  if (scheme !== "Basic" || !b64) return false;
-  let pass = "";
-  try {
-    pass = atob(b64).split(":").slice(1).join(":");
-  } catch {
-    return false;
-  }
-  const a = new TextEncoder().encode(pass);
-  const b = new TextEncoder().encode(env.PANEL_PASSWORD);
+// ── Acceso: llave secreta PANEL_LLAVE (va en el enlace y luego en una cookie) ──
+const COOKIE = "rg_llave";
+
+function llaveValida(llave, env) {
+  if (!env.PANEL_LLAVE || !llave) return false;
+  const a = new TextEncoder().encode(llave);
+  const b = new TextEncoder().encode(env.PANEL_LLAVE);
   return a.byteLength === b.byteLength && crypto.subtle.timingSafeEqual(a, b);
+}
+
+function leerCookie(request, nombre) {
+  for (const parte of (request.headers.get("Cookie") || "").split(";")) {
+    const [k, ...v] = parte.trim().split("=");
+    if (k === nombre) {
+      try {
+        return decodeURIComponent(v.join("="));
+      } catch {
+        return "";
+      }
+    }
+  }
+  return "";
+}
+
+function sinAcceso() {
+  const html = `<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecarGo eventos</title><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#FFFAF4;color:#03359B;font-family:system-ui,sans-serif;text-align:center;padding:24px">
+<div><h1 style="font-size:22px">Acceso restringido</h1><p>Abre el enlace del panel que te compartió RecarGo.</p></div></body></html>`;
+  return new Response(html, { status: 401, headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
 // ── API ──────────────────────────────────────────────────────────
